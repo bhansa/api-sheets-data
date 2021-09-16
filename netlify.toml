@@ -1,0 +1,12 @@
+[build]
+  functions = "api/"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 307
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

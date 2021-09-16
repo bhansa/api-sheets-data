@@ -1,0 +1,21 @@
+{
+  "name": "fetch-sheets-data-api",
+  "version": "0.3.0",
+  "description": "fetch Sheets api",
+  "engines": {
+    "node": "14.x"
+  },
+  "main": "fetchSheetsData.js",
+  "dependencies": {
+    "googleapis": "61.0.0",
+    "lessttp": "0.2.3"
+  },
+  "scripts": {
+    "start": "node fetchSheetsData.js"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ]
+}
