@@ -43,7 +43,12 @@ exports.handler = async (event, context) => {
   // console.log('accessing', sheet.title, 'it has ', sheet.rowCount, ' rows');
   const path = event.path.replace(/\.netlify\/functions\/[^/]+/, '');
   const segments = path.split('/').filter((e) => e);
-
+  
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTION'
+  };
   try {
     switch (event.httpMethod) {
       case 'GET':
@@ -53,6 +58,7 @@ exports.handler = async (event, context) => {
           const serializedRows = rows.map(serializeRow);
           return {
             statusCode: 200,
+            headers,
             // body: JSON.stringify(rows) // dont do this - has circular references
             body: JSON.stringify(serializedRows) // better
           };
@@ -64,6 +70,7 @@ exports.handler = async (event, context) => {
           const srow = serializeRow(rows[rowId]);
           return {
             statusCode: 200,
+            headers,
             body: JSON.stringify(srow) // just sends less data over the wire
           };
         } else {
