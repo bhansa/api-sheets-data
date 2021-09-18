@@ -7,6 +7,8 @@
   },
   "main": "fetchSheetsData.js",
   "dependencies": {
+    "dotenv": "^8.2.0",
+    "google-spreadsheet": "^3.0.8",
     "googleapis": "61.0.0",
     "lessttp": "0.2.3"
   },
