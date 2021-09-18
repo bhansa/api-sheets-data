@@ -2,17 +2,12 @@
   functions = "api/"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 307
-
-[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
-  for = "api/*"
+  for = "/*"
     [headers.values]
     Access-Control-Allow-Origin = "*"
