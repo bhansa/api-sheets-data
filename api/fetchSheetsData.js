@@ -31,24 +31,64 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 exports.handler = async (event, context) => {
   const UserIP = event.headers['x-nf-client-connection-ip'] || '6.9.6.9'; // not required, i just feel like using this info
-  const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID_FROM_URL);
+  const { queryStringParameters } = event;
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTION'
+  };
+
+  // Set default values of sheetId and sheetIndex
+  var sheetId = process.env.GOOGLE_SPREADSHEET_ID_FROM_URL;
+  var sheetIndex = 0;
+
+  // Check if the sheetId parameter is provided in the URL
+  if (queryStringParameters && queryStringParameters.sheetId) {
+    // Extract the sheetId from the URL query parameters
+    var { sheetId } = event.queryStringParameters;
+  }
+
+  // Check if the sheetIndex parameter is provided in the URL
+  if (queryStringParameters && queryStringParameters.sheetIndex) {
+    // Extract the sheetIndex from the URL query parameters
+    var { sheetIndex } = event.queryStringParameters;
+  }
+
+  const doc = new GoogleSpreadsheet(sheetId);
 
   // https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication
   await doc.useServiceAccountAuth({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
   });
-  await doc.loadInfo(); // loads document properties and worksheets. required.
-  const sheet = doc.sheetsByIndex[0]; // you may want to customize this if you have more than 1 sheet
+
+  try {
+    await doc.loadInfo(); // loads document properties and worksheets. required.
+  }
+  catch (err) {
+    console.error('error ocurred in loading the sheet ', event);
+    console.error(err);
+    // Occurs when the sheetId or SheetIndex or both are invalid.
+    return {
+      statusCode: 404,
+      body: err.toString()
+    };
+  }
+
+  const sheet = doc.sheetsByIndex[sheetIndex]; // you may want to customize this if you have more than 1 sheet
+  if (!sheet) {
+    // If the sheet does not exist, return a 404 Not Found response
+    return {
+      statusCode: 404,
+      headers,
+      body: 'Sheet not found'
+    };
+  }
+
   // console.log('accessing', sheet.title, 'it has ', sheet.rowCount, ' rows');
   const path = event.path.replace(/\.netlify\/functions\/[^/]+/, '');
   const segments = path.split('/').filter((e) => e);
-  
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTION'
-  };
+
   try {
     switch (event.httpMethod) {
       case 'GET':
